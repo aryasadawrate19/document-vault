@@ -14,6 +14,7 @@ export const runtime = "nodejs";
 import { NextRequest, NextResponse } from "next/server";
 import { ObjectId } from "mongodb";
 import { getGridFSBucket } from "@/lib/mongodb";
+import { requireAuth } from "@/lib/auth";
 
 interface DeleteRequestBody {
     fileId: string;
@@ -33,6 +34,11 @@ export async function DELETE(
     request: NextRequest,
 ): Promise<NextResponse<SuccessResponse | ErrorResponse>> {
     try {
+        try {
+            await requireAuth(request);
+        } catch (err) {
+            return NextResponse.json({ success: false as const, error: "Unauthorized" }, { status: 401 });
+        }
         const body: unknown = await request.json();
 
         if (

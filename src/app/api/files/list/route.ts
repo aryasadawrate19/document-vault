@@ -9,8 +9,9 @@
 
 export const runtime = "nodejs";
 
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { getDatabase } from "@/lib/mongodb";
+import { requireAuth } from "@/lib/auth";
 
 interface FileListItem {
     fileId: string;
@@ -29,8 +30,13 @@ interface ErrorResponse {
     error: string;
 }
 
-export async function GET(): Promise<NextResponse<SuccessResponse | ErrorResponse>> {
+export async function GET(request: NextRequest): Promise<NextResponse<SuccessResponse | ErrorResponse>> {
     try {
+        try {
+            await requireAuth(request);
+        } catch (err) {
+            return NextResponse.json({ success: false as const, error: "Unauthorized" }, { status: 401 });
+        }
         const db = await getDatabase();
         const filesCollection = db.collection("encryptedFiles.files");
 

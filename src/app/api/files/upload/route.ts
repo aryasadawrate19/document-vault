@@ -27,6 +27,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { ObjectId } from "mongodb";
 import { getGridFSBucket } from "@/lib/mongodb";
 import { Readable } from "stream";
+import { requireAuth } from "@/lib/auth";
 
 // ─── Request / Response Types ────────────────────────────────────────────────
 
@@ -82,6 +83,11 @@ export async function POST(
     request: NextRequest,
 ): Promise<NextResponse<UploadSuccessResponse | ErrorResponse>> {
     try {
+        try {
+            await requireAuth(request);
+        } catch (err) {
+            return NextResponse.json({ success: false as const, error: "Unauthorized" }, { status: 401 });
+        }
         // 1. Parse the JSON request body
         const body: unknown = await request.json();
 
