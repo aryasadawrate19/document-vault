@@ -1,8 +1,8 @@
 import fs from "fs";
 import path from "path";
-import { encryptText, encryptBuffer, encryptFile, encryptFileStream } from "./encryption/encrypt";
-import { decryptText, decryptBuffer, decryptFile, decryptFileStream } from "./decryption/decrypt";
-import { DecryptionError } from "./decryption/types";
+import { encryptText, encryptBuffer, encryptFile, encryptFileStream } from "./src/utils/encryption/encrypt";
+import { decryptText, decryptBuffer, decryptFile, decryptFileStream } from "./src/utils/decryption/decrypt";
+import { DecryptionError } from "./src/utils/decryption/types";
 
 const PASSWORD = "test-password-123!";
 const TEST_DIR = path.join(__dirname, "test-output");
