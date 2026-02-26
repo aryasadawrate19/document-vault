@@ -49,8 +49,6 @@ export default function Login() {
     if (!validateForm()) return;
 
     setIsLoading(true);
-    // Simulate API call
-    console.log("Form Data Submitted:", formData);
     
     setTimeout(() => {
       setIsLoading(false);
@@ -258,7 +256,7 @@ export default function Login() {
 
           {/* Register Link */}
           <div className="mt-8 text-center text-sm text-gray-600">
-            Don &apos; t have an account?{" "}
+            Don't have an account?{" "}
             <Link
               href="/register"
               className="font-medium text-indigo-600 hover:text-indigo-500 hover:underline transition-colors"
