@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function Login() {
   const [formData, setFormData] = useState({
@@ -13,6 +14,7 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -49,12 +51,31 @@ export default function Login() {
     if (!validateForm()) return;
 
     setIsLoading(true);
-    
-    setTimeout(() => {
+    setErrors({});
+
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        localStorage.setItem("token", data.token);
+        setIsSuccess(true);
+        setFormData({ email: "", password: "" });
+        router.push("/dashboard");
+      } else {
+        setErrors({ email: data.error || "Login failed." });
+      }
+    } catch {
+      setErrors({ email: "Network error. Please try again." });
+    } finally {
       setIsLoading(false);
-      setIsSuccess(true);
-      setFormData({ email: "", password: "" });
-    }, 1500);
+    }
   };
 
   return (
