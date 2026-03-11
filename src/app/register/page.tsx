@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -15,6 +16,7 @@ export default function Register() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -59,19 +61,45 @@ export default function Register() {
     if (!validateForm()) return;
 
     setIsLoading(true);
-    // Simulate API call
-    console.log("Form Data Submitted:", formData);
-    
-    setTimeout(() => {
+    setErrors({});
+
+    try {
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        localStorage.setItem("token", data.token);
+        setIsSuccess(true);
+        setFormData({ name: "", email: "", password: "", confirmPassword: "" });
+        router.push("/dashboard");
+      } else {
+        setErrors({ email: data.error || "Registration failed." });
+      }
+    } catch {
+      setErrors({ email: "Network error. Please try again." });
+    } finally {
       setIsLoading(false);
-      setIsSuccess(true);
-      setFormData({ name: "", email: "", password: "", confirmPassword: "" });
-    }, 1500);
+    }
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-4 font-sans">
-      <div className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-8 shadow-2xl transition-all hover:shadow-3xl sm:p-10">
+    <div className="min-h-screen bg-gray-50 text-gray-900 font-sans selection:bg-indigo-100 selection:text-indigo-900 relative overflow-hidden">
+      {/* Background Gradients */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full max-w-7xl pointer-events-none">
+        <div className="absolute top-20 left-10 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
+        <div className="absolute top-20 right-10 w-72 h-72 bg-yellow-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
+        <div className="absolute -bottom-8 left-1/2 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000"></div>
+      </div>
+
+      <div className="flex min-h-screen items-center justify-center p-4 relative z-10">
+        <div className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-8 shadow-2xl transition-all hover:shadow-3xl sm:p-10">
         
         <div className="mb-8 text-center">
           <h2 className="text-3xl font-extrabold text-gray-900 tracking-tight">
@@ -315,6 +343,7 @@ export default function Register() {
           >
             Log in
           </Link>
+        </div>
         </div>
       </div>
     </div>
