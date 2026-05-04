@@ -406,8 +406,12 @@ export async function decryptFileStream(
         let bytesProcessed = 0;
         const totalBytes = stat.size;
 
-        readStream.on("data", (chunk: Buffer) => {
-            bytesProcessed += chunk.length;
+        readStream.on("data", (chunk) => {
+            const chunkSize =
+                typeof chunk === "string"
+                    ? Buffer.byteLength(chunk)
+                    : chunk.length;
+            bytesProcessed += chunkSize;
             onProgress?.(bytesProcessed, totalBytes);
         });
 
